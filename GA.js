@@ -13,8 +13,16 @@ class GA {
 
     generateRandomCities(citiesSize) {
         for (let i = 0; i < citiesSize; i++) {
-            let v = createVector(random(width / 2), random(height / 2))
+            const v = createVector(random(width / 2), random(height / 2))
             this.cities[i] = v
+        }
+    }
+
+    importDataset(data) {
+        this.cities = []
+
+        for (const row of data) {
+            this.cities.push(createVector(row[1], row[2]))
         }
     }
 
@@ -22,38 +30,46 @@ class GA {
         const order = [...Array(this.cities.length).keys()]
 
         for (let i = 0; i < populationSize; i++) {
-            this.population[i] = shuffle(order)
+            this.population[i] = [order[0], ...shuffle(order.slice(1))]
         }
+    }
+
+    invertScale(coord) {
+        const scaled = coord * sliderScaling.value()
+        return invertCheckbox.checked() ? height / 2 - scaled : scaled
     }
 
     drawTotalBest() {
-        stroke(0)
-        strokeWeight(4)
-        noFill()
-        for (let i = 0; i < this.totalBest.length; i++) {
-            const n = this.totalBest[i]
-            const nNext = this.totalBest[i + 1]
-            const color = map(i, 0, this.totalBest.length, 0, 255)
-            stroke(color, 255 - color, color)
-            if (nNext)
-                line(this.cities[n].x, this.cities[n].y, this.cities[nNext].x, this.cities[nNext].y)
-            ellipse(this.cities[n].x, this.cities[n].y, 16, 16)
-        }
+        this.drawOrder(this.totalBest)
     }
 
     drawCurrentBest() {
+        push()
         translate(0, height / 2)
+        this.drawOrder(this.currentBest)
+        pop()
+    }
+
+    drawOrder(order) {
         stroke(0)
         strokeWeight(4)
         noFill()
-        for (let i = 0; i < this.currentBest.length; i++) {
-            const n = this.currentBest[i]
-            const nNext = this.currentBest[i + 1]
-            const color = map(i, 0, this.currentBest.length, 0, 255)
+        const _ = this
+        const S = (x) => x * sliderScaling.value()
+        const iS = _.invertScale
+
+        for (let i = 0; i < order.length; i++) {
+            const n = order[i]
+            const nNext = order[i + 1]
+            const color = map(i, 0, order.length, 0, 255)
             stroke(color, 255 - color, color)
+
             if (nNext)
-                line(this.cities[n].x, this.cities[n].y, this.cities[nNext].x, this.cities[nNext].y)
-            ellipse(this.cities[n].x, this.cities[n].y, 16, 16)
+                line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[nNext].x), iS(_.cities[nNext].y))
+            else
+                line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[0].x), iS(_.cities[0].y))
+            
+            ellipse(S(_.cities[n].x), iS(_.cities[n].y), 16, 16)
         }
     }
 
@@ -64,13 +80,15 @@ class GA {
         textStyle(BOLD)
         textSize(24)
         fill(0)
-        translate(width / 2 + 50, - height / 2)
+        translate(width / 2 + 50, 0)
         text(`Generation: ${this.generationCounter}`, 50, 50)
         text(`Record distance: ${floor(this.bestDistance)}`, 50, 80)
         text(`Mutation rate: ${this.mutationRate}`, 50, 110)
         text(`Cities size: ${this.cities.length}`, 50, 140)
         text(`Population size: ${this.population.length}`, 50, 170)
         text(`Framerate: ${round(frameRate())}`, 50, 200)
+        text(`Scaling: ${sliderScaling.value()}`, 50, 230)
+        text(`Invert: ${invertCheckbox.checked()}`, 50, 260)
     }
 
     static calculatePointDistance(p, q) {
@@ -86,6 +104,8 @@ class GA {
             const d = this.calculatePointDistance(cityA, cityB)
             sum += d
         }
+
+        sum += this.calculatePointDistance(points[order.length - 1], points[0])
 
         return sum
     }
@@ -105,7 +125,7 @@ class GA {
                 this.currentBest = this.population[i]
             }
 
-            // TODO: Examine
+            // Exponential increment
             this.fitness[i] = 1 / (pow(distance, 8) + 1)
         }
 
@@ -132,13 +152,15 @@ class GA {
 
     regenerate() {
         let newPopulation = []
+
         for (let i = 0; i < this.population.length; i++) {
             const orderA = this.pickOne()
             const orderB = this.pickOne()
-            let order = GA.crossOver(orderA, orderB)
+            let order = GA.crossOver(orderA.slice(1), orderB.slice(1))
             this.mutate3(order)
-            newPopulation[i] = order
+            newPopulation[i] = [orderA[0], ...order]
         }
+
         this.population = newPopulation
         this.generationCounter++
     }

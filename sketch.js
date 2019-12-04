@@ -3,7 +3,6 @@ const gaInstance = new GA()
 let chart
 
 function setup() {
-    noLoop()
     let canvas = createCanvas(1000, 800);
     canvas.parent('sketch-holder')
 
@@ -38,6 +37,7 @@ function draw() {
 
         gaInstance.drawTotalBest()
         gaInstance.drawCurrentBest()
-        gaInstance.updateGui()
     }
+
+    gaInstance.updateGui()
 }

@@ -1,26 +1,47 @@
 let looping = false
 let sliderMutation
 let sliderFramerate
+let sliderScaling
+let invertCheckbox
 
 
 const setupGui = function() {
-    button = createButton('Start');
-    button.position(900,35);
-    button.mousePressed(() => {
+    btnStart = createButton('Start')
+    btnStart.position(900,35)
+    btnStart.mousePressed(() => {
         if(gaInstance.population.length == 0)
             gaInstance.generateRandomPopulation(500)
     
         const temp = looping
         looping = !looping
         temp ? noLoop() : loop()
-        button.html(looping ? 'Pause' : 'Start')
+        btnStart.html(looping ? 'Pause' : 'Start')
     });
 
-    sliderMutation = createSlider(0, 10000);
-    sliderMutation.position(900, 97);
+    btnImport = createButton('Import Dataset')
+    btnImport.position(900, 65)
+    btnImport.mousePressed(() => {
+        if (gaInstance.population.length != 0)
+            return alert('Dataset can only be imported before starting')
+        
+        gaInstance.importDataset(berlinDataset)
+        sliderScaling.value(0.3)
+        invertCheckbox.checked(true)
+        alert('Imported dataset, adjusted scaling to 0.3 and inverted the canvas vertically')
+    });
+
+    sliderMutation = createSlider(0, 10000, 100)
+    sliderMutation.position(900, 97)
     sliderMutation.style('width', '100px')
 
-    sliderFramerate = createSlider(1, 60);
-    sliderFramerate.position(900, 187);
+    sliderFramerate = createSlider(1, 60)
+    sliderFramerate.position(900, 187)
     sliderFramerate.style('width', '100px')
+
+    sliderScaling = createSlider(0, 1, 1, 0.05)
+    sliderScaling.position(900, 220)
+    sliderScaling.style('width', '100px')
+
+    invertCheckbox = createCheckbox('', false)
+    invertCheckbox.position(900, 250)
 }
