@@ -68,6 +68,11 @@ class GA {
                 line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[nNext].x), iS(_.cities[nNext].y))
             else
                 line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[0].x), iS(_.cities[0].y))
+
+            if(i == 0)
+                fill(0)
+            else
+                noFill()
             
             ellipse(S(_.cities[n].x), iS(_.cities[n].y), 16, 16)
         }
