@@ -82,7 +82,6 @@ class GA {
         for (let i = 0; i < order.length - 1; i++) {
             const cityA = points[order[i]]
             const cityB = points[order[i + 1]]
-            // const d = dist(cityA.x, cityA.y, cityB.x, cityB.y)
             const d = this.calculatePointDistance(cityA, cityB)
             sum += d
         }
@@ -126,21 +125,11 @@ class GA {
         let sum = this.fitness.reduce((a, b) => a + b)
 
         this.fitness = this.fitness.map(f => f / sum)
-
-        // var sum = 0
-        // for (var i = 0; i < this.fitness.length; i++) {
-        //     sum += this.fitness[i]
-        // }
-        // for (var i = 0; i < this.fitness.length; i++) {
-        //     this.fitness[i] = this.fitness[i] / sum
-        // }
     }
 
     regenerate() {
         let newPopulation = []
         for (let i = 0; i < this.population.length; i++) {
-            // const orderA = this.pickOne()
-            // const orderB = this.pickOne()
             const orderA = this.pickOne()
             const orderB = this.pickOne()
             let order = GA.crossOver(orderA, orderB)
@@ -167,10 +156,10 @@ class GA {
     }
 
     static mutate(order) {
-        for (var i = 0; i < order.length; i++) {
+        for (let i = 0; i < order.length; i++) {
             if (random(1) < this.mutationRate) {
-                var i1 = floor(random(order.length))
-                var i2 = (i1 + 1) % totalCities
+                const i1 = floor(random(order.length))
+                const i2 = (i1 + 1) % totalCities // handle overflow
                 swap(order, i1, i2)
             }
         }
@@ -194,7 +183,7 @@ class GA {
     }
 
     static swap(a, i, j) {
-        var temp = a[i]
+        const temp = a[i]
         a[i] = a[j]
         a[j] = temp
     }
