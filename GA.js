@@ -133,7 +133,7 @@ class GA {
             const orderA = this.pickOne()
             const orderB = this.pickOne()
             let order = GA.crossOver(orderA, orderB)
-            this.mutate2(order)
+            this.mutate3(order)
             newPopulation[i] = order
         }
         this.population = newPopulation
@@ -179,6 +179,21 @@ class GA {
             const part2 = order.slice(index1, index2)
             const part3 = order.slice(index2, order.length)
             order = part2.concat(part1).concat(part3)
+        }
+    }
+
+    mutate3(order) {
+        if (random(1) > this.mutationRate)
+            return
+
+        for (let i = 0; i < floor(random(5)); i++) {
+            const index1 = floor(random(0, order.length - 2))
+            const index2 = floor(random(0, order.length))
+            const part1 = order.slice(0, index1)
+            const part2 = order.slice(index1, index2)
+            const part3 = order.slice(index2, order.length)
+
+            order = random([0, 1]) ? part2.concat(part1).concat(part3) : part1.concat(part3).concat(part2)
         }
     }
 
