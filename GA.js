@@ -35,7 +35,7 @@ class GA {
             const nNext = this.totalBest[i + 1]
             const color = map(i, 0, this.totalBest.length, 0, 255)
             stroke(color, 255 - color, color)
-            if(nNext)
+            if (nNext)
                 line(this.cities[n].x, this.cities[n].y, this.cities[nNext].x, this.cities[nNext].y)
             ellipse(this.cities[n].x, this.cities[n].y, 16, 16)
         }
@@ -115,6 +115,8 @@ class GA {
     logFitness() {
         if (this.generationCounter % 20 !== 0)
             return
+        if (this.fitnessHistory.length > 100)
+            this.fitnessHistory.splice(1, 1)
 
         this.fitnessHistory.push(max(this.fitness))
         chart.load({
@@ -156,7 +158,7 @@ class GA {
         return childOrder
     }
 
-    static mutate(order) {
+    mutate(order) {
         for (let i = 0; i < order.length; i++) {
             if (random(1) < this.mutationRate) {
                 const i1 = floor(random(order.length))
