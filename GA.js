@@ -191,20 +191,20 @@ class GA {
     }
 
     mutate2(order) {
-        let index1, index2
-
         if (random(1) > this.mutationRate)
             return
+        
+        let index1, index2
 
         do {
             index1 = floor(random(0, order.length - 2))
             index2 = floor(random(0, order.length))
-        } while (index1 > index2) {
+
             const part1 = order.slice(0, index1)
             const part2 = order.slice(index1, index2)
             const part3 = order.slice(index2, order.length)
             order = part2.concat(part1).concat(part3)
-        }
+        } while (index1 > index2)
     }
 
     mutate3(order) {
@@ -230,21 +230,18 @@ class GA {
 
     // Some probability magic
     pickOne() {
-        let index = 0
-        let r = random(1)
+        let index = 0, r = random(1)
 
-        while (r > 0) {
-            r = r - this.fitness[index]
-            index++
-        }
-        index--
+        while (r > 0)
+            r -= this.fitness[index++]
 
-        return this.population[index].slice()
+        return this.population[--index].slice()
     }
 
     pickOne2(index) {
         const fitnessClone = this.fitness
         const sorted = fitnessClone.sort(function (a, b) { return b - a })
+        
         for (let i = 0; i < this.population.length; i++) {
             if (fitnessClone[i] == sorted[index])
                 return this.population[i]
