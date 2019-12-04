@@ -2,6 +2,7 @@ let looping = false
 let sliderMutation
 let sliderFramerate
 let sliderScaling
+let sliderPopulation
 let invertCheckbox
 
 
@@ -33,6 +34,10 @@ const setupGui = function() {
     sliderMutation = createSlider(0, 10000, 100)
     sliderMutation.position(900, 97)
     sliderMutation.style('width', '100px')
+
+    sliderPopulation = createSlider(50, 10000, 500)
+    sliderPopulation.position(900, 157)
+    sliderPopulation.style('width', '100px')
 
     sliderFramerate = createSlider(1, 60)
     sliderFramerate.position(900, 187)

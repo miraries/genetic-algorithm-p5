@@ -75,6 +75,7 @@ class GA {
 
     updateGui() {
         this.mutationRate = sliderMutation ? sliderMutation.value() / 10000 : 0.01
+        this.populationSize = sliderPopulation ? sliderPopulation.value() : 500
         frameRate(sliderFramerate ? sliderFramerate.value() : 60)
         strokeWeight(0)
         textStyle(BOLD)
@@ -85,7 +86,7 @@ class GA {
         text(`Record distance: ${floor(this.bestDistance)}`, 50, 80)
         text(`Mutation rate: ${this.mutationRate}`, 50, 110)
         text(`Cities size: ${this.cities.length}`, 50, 140)
-        text(`Population size: ${this.population.length}`, 50, 170)
+        text(`Population size: ${this.populationSize}`, 50, 170)
         text(`Framerate: ${round(frameRate())}`, 50, 200)
         text(`Scaling: ${sliderScaling.value()}`, 50, 230)
         text(`Invert: ${invertCheckbox.checked()}`, 50, 260)
