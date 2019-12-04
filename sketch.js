@@ -13,7 +13,7 @@ function setup() {
         bindto: '#chart',
         data: {
             columns: [
-                ['Fitness',0]
+                ['Fitness', 0]
             ]
         },
         axis: {

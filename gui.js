@@ -5,14 +5,13 @@ let sliderScaling
 let sliderPopulation
 let invertCheckbox
 
-
-const setupGui = function() {
+const setupGui = function () {
     btnStart = createButton('Start')
-    btnStart.position(900,35)
+    btnStart.position(900, 35)
     btnStart.mousePressed(() => {
-        if(gaInstance.population.length == 0)
+        if (gaInstance.population.length == 0)
             gaInstance.generateRandomPopulation(500)
-    
+
         const temp = looping
         looping = !looping
         temp ? noLoop() : loop()
@@ -24,7 +23,7 @@ const setupGui = function() {
     btnImport.mousePressed(() => {
         if (gaInstance.population.length != 0)
             return alert('Dataset can only be imported before starting')
-        
+
         gaInstance.importDataset(berlinDataset)
         sliderScaling.value(0.3)
         invertCheckbox.checked(true)

@@ -69,11 +69,11 @@ class GA {
             else
                 line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[0].x), iS(_.cities[0].y))
 
-            if(i == 0)
+            if (i == 0)
                 fill(0)
             else
                 noFill()
-            
+
             ellipse(S(_.cities[n].x), iS(_.cities[n].y), 16, 16)
         }
     }
@@ -176,11 +176,9 @@ class GA {
         const end = floor(random(start + 1, orderA.length))
         const childOrder = orderA.slice(start, end)
 
-        for (let i = 0; i < orderB.length; i++) {
-            const cityIndex = orderB[i]
-            if (!childOrder.includes(cityIndex)) {
+        for (const cityIndex of orderB) {
+            if (!childOrder.includes(cityIndex))
                 childOrder.push(cityIndex)
-            }
         }
 
         return childOrder
@@ -199,7 +197,7 @@ class GA {
     mutate2(order) {
         if (random(1) > this.mutationRate)
             return
-        
+
         let index1, index2
 
         do {
@@ -247,7 +245,7 @@ class GA {
     pickOne2(index) {
         const fitnessClone = this.fitness
         const sorted = fitnessClone.sort(function (a, b) { return b - a })
-        
+
         for (let i = 0; i < this.population.length; i++) {
             if (fitnessClone[i] == sorted[index])
                 return this.population[i]
