@@ -8,7 +8,6 @@ function setup() {
     canvas.parent('sketch-holder')
 
     gaInstance.generateRandomCities(60)
-    gaInstance.generateRandomPopulation(500)
     setupGui()
 
     chart = c3.generate({
@@ -32,11 +31,13 @@ function setup() {
 function draw() {
     background(255)
 
-    gaInstance.calculateFitness()
-    gaInstance.normalizeFitness()
-    gaInstance.regenerate()
+    if (gaInstance.population.length != 0) {
+        gaInstance.calculateFitness()
+        gaInstance.normalizeFitness()
+        gaInstance.regenerate()
 
-    gaInstance.drawTotalBest()
-    gaInstance.drawCurrentBest()
-    gaInstance.updateGui()
+        gaInstance.drawTotalBest()
+        gaInstance.drawCurrentBest()
+        gaInstance.updateGui()
+    }
 }

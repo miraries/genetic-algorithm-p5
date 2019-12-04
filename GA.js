@@ -70,6 +70,7 @@ class GA {
         text(`Mutation rate: ${this.mutationRate}`, 50, 110)
         text(`Cities size: ${this.cities.length}`, 50, 140)
         text(`Population size: ${this.population.length}`, 50, 170)
+        text(`Framerate: ${round(frameRate())}`, 50, 200)
     }
 
     static calculatePointDistance(p, q) {
