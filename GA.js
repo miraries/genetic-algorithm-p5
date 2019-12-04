@@ -30,13 +30,15 @@ class GA {
         stroke(0)
         strokeWeight(4)
         noFill()
-        beginShape()
-        for (var i = 0; i < this.totalBest.length; i++) {
-            var n = this.totalBest[i]
-            vertex(this.cities[n].x, this.cities[n].y)
+        for (let i = 0; i < this.totalBest.length; i++) {
+            const n = this.totalBest[i]
+            const nNext = this.totalBest[i + 1]
+            const color = map(i, 0, this.totalBest.length, 0, 255)
+            stroke(color, 255 - color, color)
+            if(nNext)
+                line(this.cities[n].x, this.cities[n].y, this.cities[nNext].x, this.cities[nNext].y)
             ellipse(this.cities[n].x, this.cities[n].y, 16, 16)
         }
-        endShape()
     }
 
     drawCurrentBest() {
@@ -44,13 +46,15 @@ class GA {
         stroke(0)
         strokeWeight(4)
         noFill()
-        beginShape()
-        for (var i = 0; i < this.currentBest.length; i++) {
-            var n = this.currentBest[i]
-            vertex(this.cities[n].x, this.cities[n].y)
+        for (let i = 0; i < this.currentBest.length; i++) {
+            const n = this.currentBest[i]
+            const nNext = this.currentBest[i + 1]
+            const color = map(i, 0, this.currentBest.length, 0, 255)
+            stroke(color, 255 - color, color)
+            if (nNext)
+                line(this.cities[n].x, this.cities[n].y, this.cities[nNext].x, this.cities[nNext].y)
             ellipse(this.cities[n].x, this.cities[n].y, 16, 16)
         }
-        endShape()
     }
 
     updateGui() {
