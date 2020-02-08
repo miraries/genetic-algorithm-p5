@@ -177,13 +177,12 @@ class GA {
             newPopulation[i] = order
         }
 
-        const tempHistory = this.fitnessHistory.slice(-10)
-        let shouldAddRandomAnyway = tempHistory.every((val, i, arr) => val <= tempHistory[0] + 20)
-        
+        this.mutateOverride = this.fitnessHistory.slice(-10).every((val, i, arr) => val * 0.9 <= arr[0])
+
         const bestChildren = this.pickBest(floor(random(200, 300)))
-        const newRandom = this.generateRandomN(floor(bestChildren.mutated || shouldAddRandomAnyway ? random(3, 5) : random(100, 200)))
-        
-        console.log({ mutated: bestChildren.mutated, shouldAddRandomAnyway})
+        const newRandom = this.generateRandomN(floor(bestChildren.mutated ? random(3, 5) : random(100, 200)))
+
+        console.log({ mutated: bestChildren.mutated })
 
         this.population = [...newPopulation.slice(bestChildren.children.length + newRandom.length + 1), ...bestChildren.children, ...newRandom, this.mutate(this.totalBest)]
         this.generationCounter++
@@ -215,7 +214,7 @@ class GA {
     }
 
     mutate(order) {
-        if (random(1) > this.mutationRate)
+        if (random(1) > (this.mutateOverride ? 0.85 : this.mutationRate))
             return order
 
         for (let i = 0; i < floor(random(10)); i++) {
@@ -255,7 +254,7 @@ class GA {
             let tempChild = this.population[fitnessClone.indexOf(max)]
 
             const tempHistory = this.fitnessHistory.slice(-5)
-            if (tempHistory.every((val, i, arr) => val <= tempHistory[0] + 20)){
+            if (tempHistory.every((val, i, arr) => val <= tempHistory[0] + 20)) {
                 this.mutate(tempChild)
                 mutated = true
             }
@@ -264,6 +263,6 @@ class GA {
             fitnessClone.splice(fitnessClone.indexOf(max), 1)
         }
 
-        return {children, mutated}
+        return { children, mutated }
     }
 }
