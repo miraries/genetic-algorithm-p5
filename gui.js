@@ -10,7 +10,7 @@ const setupGui = function () {
     btnStart.position(900, 35)
     btnStart.mousePressed(() => {
         if (gaInstance.population.length == 0)
-            gaInstance.generateRandomPopulation(500)
+            gaInstance.generateRandomPopulation(sliderPopulation.value())
 
         const temp = looping
         looping = !looping

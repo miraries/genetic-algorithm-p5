@@ -30,7 +30,7 @@ class GA {
         const order = [...Array(this.cities.length).keys()]
 
         for (let i = 0; i < populationSize; i++) {
-            this.population[i] = [order[0], ...shuffle(order.slice(1))]
+            this.population[i] = shuffle(order)
         }
     }
 
@@ -64,18 +64,18 @@ class GA {
             const color = map(i, 0, order.length, 0, 255)
             stroke(color, 255 - color, color)
 
-            if (nNext)
+            if (nNext !== null && nNext !== undefined)
                 line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[nNext].x), iS(_.cities[nNext].y))
-            else
-                line(S(_.cities[n].x), iS(_.cities[n].y), S(_.cities[0].x), iS(_.cities[0].y))
 
-            if (i == 0)
+            if (i == 0 || i == order.length - 1)
                 fill(0)
             else
                 noFill()
 
-            ellipse(S(_.cities[n].x), iS(_.cities[n].y), 16, 16)
+            ellipse(S(_.cities[n].x), iS(_.cities[n].y), 8, 8)
         }
+
+        line(S(_.cities[order[0]].x), iS(_.cities[order[0]].y), S(_.cities[order[order.length - 1]].x), iS(_.cities[order[order.length - 1]].y))
     }
 
     updateGui() {
@@ -111,7 +111,7 @@ class GA {
             sum += d
         }
 
-        sum += this.calculatePointDistance(points[order.length - 1], points[0])
+        sum += this.calculatePointDistance(points[order[order.length - 1]], points[order[0]])
 
         return sum
     }
@@ -156,18 +156,35 @@ class GA {
         this.fitness = this.fitness.map(f => f / sum)
     }
 
+    generateRandomN(n) {
+        let children = []
+
+        for (let u = 0; u < n; u++) {
+            children.push(shuffle([...Array(gaInstance.cities.length).keys()]))
+        }
+
+        return children
+    }
+
     regenerate() {
         let newPopulation = []
 
         for (let i = 0; i < this.population.length; i++) {
             const orderA = this.pickOne()
             const orderB = this.pickOne()
-            let order = GA.crossOver(orderA.slice(1), orderB.slice(1))
-            this.mutate3(order)
-            newPopulation[i] = [orderA[0], ...order]
+            let order = GA.crossOver(orderA, orderB)
+            this.mutate(order)
+            newPopulation[i] = order
         }
 
-        this.population = newPopulation
+        this.mutateOverride = this.fitnessHistory.slice(-10).every((val, i, arr) => val * 0.9 <= arr[0])
+
+        const bestChildren = this.pickBest(floor(random(200, 300)))
+        const newRandom = this.generateRandomN(floor(bestChildren.mutated ? random(3, 5) : random(100, 200)))
+
+        console.log({ mutated: bestChildren.mutated })
+
+        this.population = [...newPopulation.slice(bestChildren.children.length + newRandom.length + 1), ...bestChildren.children, ...newRandom, this.mutate(this.totalBest)]
         this.generationCounter++
     }
 
@@ -176,54 +193,39 @@ class GA {
         const end = floor(random(start + 1, orderA.length))
         const childOrder = orderA.slice(start, end)
 
-        for (const cityIndex of orderB) {
-            if (!childOrder.includes(cityIndex))
+        for (let i = 0; i < orderB.length; i++) {
+            const cityIndex = orderB[i]
+            if (!childOrder.includes(cityIndex)) {
                 childOrder.push(cityIndex)
+            }
         }
 
         return childOrder
     }
 
-    mutate(order) {
+    mutateReal(order) {
         for (let i = 0; i < order.length; i++) {
             if (random(1) < this.mutationRate) {
                 const i1 = floor(random(order.length))
-                const i2 = (i1 + 1) % totalCities // handle overflow
-                swap(order, i1, i2)
+                const i2 = (i1 + 1) % this.cities.length // handle overflow
+                GA.swap(order, i1, i2)
             }
         }
     }
 
-    mutate2(order) {
-        if (random(1) > this.mutationRate)
-            return
+    mutate(order) {
+        if (random(1) > (this.mutateOverride ? 0.85 : this.mutationRate))
+            return order
 
-        let index1, index2
+        for (let i = 0; i < floor(random(10)); i++) {
+            const index1 = floor(random(0, order.length))
+            const index2 = floor(random(index1, order.length))
 
-        do {
-            index1 = floor(random(0, order.length - 2))
-            index2 = floor(random(0, order.length))
-
-            const part1 = order.slice(0, index1)
-            const part2 = order.slice(index1, index2)
-            const part3 = order.slice(index2, order.length)
-            order = part2.concat(part1).concat(part3)
-        } while (index1 > index2)
-    }
-
-    mutate3(order) {
-        if (random(1) > this.mutationRate)
-            return
-
-        for (let i = 0; i < floor(random(5)); i++) {
-            const index1 = floor(random(0, order.length - 2))
-            const index2 = floor(random(0, order.length))
-            const part1 = order.slice(0, index1)
-            const part2 = order.slice(index1, index2)
-            const part3 = order.slice(index2, order.length)
-
-            order = random([0, 1]) ? part2.concat(part1).concat(part3) : part1.concat(part3).concat(part2)
+            const part = order.slice(index1, index2).reverse()
+            order = [...(new Set(order.slice(0, index1).concat(part).concat(order.slice(index1, order.length))))]
         }
+
+        return order
     }
 
     static swap(a, i, j) {
@@ -242,13 +244,25 @@ class GA {
         return this.population[--index].slice()
     }
 
-    pickOne2(index) {
-        const fitnessClone = this.fitness
-        const sorted = fitnessClone.sort(function (a, b) { return b - a })
+    pickBest(n) {
+        const fitnessClone = this.fitness.slice()
+        let children = []
+        let mutated = false
 
-        for (let i = 0; i < this.population.length; i++) {
-            if (fitnessClone[i] == sorted[index])
-                return this.population[i]
+        for (let i = 0; i < n; i++) {
+            let max = Math.max(...fitnessClone)
+            let tempChild = this.population[fitnessClone.indexOf(max)]
+
+            const tempHistory = this.fitnessHistory.slice(-5)
+            if (tempHistory.every((val, i, arr) => val <= tempHistory[0] + 20)) {
+                this.mutate(tempChild)
+                mutated = true
+            }
+
+            children.push(tempChild)
+            fitnessClone.splice(fitnessClone.indexOf(max), 1)
         }
+
+        return { children, mutated }
     }
 }
