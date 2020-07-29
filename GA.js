@@ -46,7 +46,7 @@ class GA {
     drawCurrentBest() {
         push()
         translate(0, height / 2)
-        this.drawOrder(this.currentBest)
+        this.drawOrder(this.population[round(random()*(this.population.length-1))])
         pop()
     }
 
